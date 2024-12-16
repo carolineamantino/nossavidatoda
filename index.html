@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Every Second Matters</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fffafc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #d16ba5;
+            margin-top: 20px;
+        }
+
+        .message-box {
+            background-color: #ffffff;
+            border: 2px solid #f8bbd0;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            color: #e91e63;
+            margin-bottom: 30px;
+        }
+
+        .comments-box {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background-color: #ffffff;
+            border: 2px solid #f8bbd0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            width: 250px;
+            z-index: 1000;
+            resize: both;
+            overflow: hidden;
+        }
+
+        .comments-box textarea,
+        .comments-box input[type="file"] {
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .comments-box button {
+            background-color: #d16ba5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .comments-box button:hover {
+            background-color: #c2185b;
+        }
+
+        .comment-section {
+            width: 80%;
+            max-width: 600px;
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .comment {
+            background-color: #fff0f5;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment img {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+
+        .comments-box textarea {
+            word-wrap: break-word;
+            max-width: 100%;
+            max-height: 150px;
+            height: auto;
+            overflow-wrap: break-word;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Every Second Matters</h1>
+
+    <div class="message-box">
+        Meu amor, Sei que não somos perfeitos. Temos nossas falhas – e, às vezes, erramos. Mas, quando penso em nós, vejo o quanto vale a pena. Nossas qualidades, nosso carinho e os momentos que compartilhamos superam qualquer dificuldade. Quero que saiba que estou aqui, disposta a melhorar e a crescer ao seu lado. Escolho você todos os dias, com suas imperfeições e tudo o que te faz único. O que temos é especial, e eu, sigo lutando para que continue assim. Com amor, Sua Hyrax. Te amo meu denguinho ♥️ Ca&Lu ♥️
+    </div>
+
+    <div class="timer" id="timer"></div>
+
+    <div class="comments-box">
+        <h3>♥️ love memories C&L ♥️</h3>
+        <textarea id="comment-text" placeholder="Write your memory..."></textarea>
+        <input type="file" id="comment-photo" accept="image/*">
+        <button onclick="addComment()">Add Memory</button>
+    </div>
+
+    <div class="comment-section" id="comment-section"></div>
+
+    <script>
+        // Timer logic
+        function updateTimer() {
+            const startDate = new Date('2024-05-19T00:00:00');
+            const now = new Date();
+            const diff = now - startDate;
+
+            const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+            const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('timer').innerHTML = `${years} anos, ${months} meses, ${days} dias, ${hours} horas, ${minutes} minutos, ${seconds} segundos`;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Comments logic with localStorage
+        function loadComments() {
+            const commentSection = document.getElementById('comment-section');
+            commentSection.innerHTML = '';
+
+            const savedComments = JSON.parse(localStorage.getItem('comments')) || [];
+
+            savedComments.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+
+                if (comment.text) {
+                    const textPara = document.createElement('p');
+                    textPara.textContent = comment.text;
+                    commentDiv.appendChild(textPara);
+                }
+
+                if (comment.photo) {
+                    const img = document.createElement('img');
+                    img.src = comment.photo;
+                    commentDiv.appendChild(img);
+                }
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = function() {
+                    commentDiv.remove();
+                    saveComments();
+                };
+                commentDiv.appendChild(deleteButton);
+
+                commentSection.appendChild(commentDiv);
+            });
+        }
+
+        function addComment() {
+            const commentText = document.getElementById('comment-text').value;
+            const commentPhoto = document.getElementById('comment-photo').files[0];
+
+            if (!commentText && !commentPhoto) {
+                alert('Please add a memory or photo!');
+                return;
+            }
+
+            const commentSection = document.getElementById('comment-section');
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+
+            const comment = {};
+
+            if (commentText) {
+                const textPara = document.createElement('p');
+                textPara.textContent = commentText;
+                commentDiv.appendChild(textPara);
+                comment.text = commentText;
+            }
+
+            if (commentPhoto) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    commentDiv.appendChild(img);
+
+                    comment.photo = e.target.result;
+                    saveComments();
+                };
+                reader.readAsDataURL(commentPhoto);
+            }
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = function() {
+                commentDiv.remove();
+                saveComments();
+            };
+            commentDiv.appendChild(deleteButton);
+
+            commentSection.appendChild(commentDiv);
+
+            if (!commentPhoto) saveComments();
+
+            document.getElementById('comment-text').value = '';
+            document.getElementById('comment-photo').value = '';
+        }
+
+        function saveComments() {
+            const comments = [];
+            document.querySelectorAll('.comment').forEach(commentDiv => {
+                const comment = {};
+
+                const textPara = commentDiv.querySelector('p');
+                if (textPara) comment.text = textPara.textContent;
+
+                const img = commentDiv.querySelector('img');
+                if (img) comment.photo = img.src;
+
+                comments.push(comment);
+            });
+
+            localStorage.setItem('comments', JSON.stringify(comments));
+        }
+
+        loadComments();
+    </script>
+</body>
+</html>
